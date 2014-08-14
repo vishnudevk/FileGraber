@@ -1,0 +1,184 @@
+<project name="FileGraber" default="main" basedir=".">
+
+	
+	
+	<property name="project-name" value="${ant.project.name}"/>
+	<property name="builder" value="Vish"/>
+
+	<property file="build.properties"/>
+
+	<property name="name" value="FileGraber"/>
+	<property name="version" value="1.0" />
+	<tstamp prefix="build-info">
+		<format property="current-date" pattern="d-MMMM-yyyy" locale="en" />
+		<format property="current-time" pattern="hh:mm:ss a z" locale="en" />
+	</tstamp>
+
+	<!-- Sets variables which can later be used. -->
+	<!-- The value of a property is accessed via ${} -->
+	<property name="src.dir" value="src" />
+	<!--<property name="res.dir" value="src/main/resources" />-->
+	<property name="web.dir" value="WebContent" />
+	<property name="web-xml-file" value="WebContent/WEB-INF/web.xml" />
+
+	<property name="class.dir" value="bin" />
+	<property name="build.dir" value="build/classes" />
+	<property name="build.meta" value="build/classes/META-INF" />
+	<property name="war.dir" value="war" />
+	<property name="docs.dir" value="docs" />
+	<property name="dist.dir" value="dist" />
+
+
+	<!-- master-classpath: -->
+	<path id="compile.classpath">
+		<!-- <fileset dir="WebContent/WEB-INF/lib"> -->
+			<!-- <include name="*.jar"/> -->
+		<!-- </fileset> -->
+		<fileset dir="WebContent/WEB-INF/lib">
+			<include name="*.jar"/>
+		</fileset>
+		<pathelement path="${build.dir}"/>
+		
+		<fileset dir="ServerLib">
+					<include name="*.jar"/>
+		</fileset>
+		
+		
+		
+		
+		
+		
+		<!-- We need the servlet API classes: -->
+		<!--  * for Tomcat 5/6 use servlet-api.jar -->
+		<!--  * for other app servers - check the docs -->
+		<!--  <fileset dir="${appserver.lib}"> -->
+		<!--  <include name="servlet*.jar"/> -->
+		<!--  </fileset> -->
+	</path>
+
+	<!-- Deletes the existing build, docs and dist directory-->
+	<target name="clean">
+		<delete dir="${class.dir}" />
+		<delete dir="${build.dir}" />
+		<delete dir="${build.meta}" />
+		<delete dir="${war.dir}" />
+		<delete dir="${docs.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+
+	<!-- Creates the  build, docs and dist directory-->
+	<target name="makedir">
+		<mkdir dir="${class.dir}" />
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="build/WEB-INF" />
+		<mkdir dir="build/WEB-INF/lib" />
+		<copydir src="WebContent/WEB-INF/lib" dest="build/WEB-INF/lib"/>
+		<mkdir dir="${build.meta}" />
+		<mkdir dir="${build.meta}/spring" />
+		<mkdir dir="${war.dir}"/>
+		<mkdir dir="${docs.dir}" />
+		<mkdir dir="${dist.dir}" />
+	</target>
+
+	<!-- Compiles the java code (including the usage of library for JUnit source="1.1" target="1.1" -->
+	<target name="compile" depends="clean, makedir" description="Compile main source tree java files">
+		<javac destdir="${build.dir}" debug="true" 
+			deprecation="false" failonerror="true" optimize="false" >
+			<src path="${src.dir}"/>
+			<classpath refid="compile.classpath"/>
+		</javac>
+		
+		<manifest file="${build.dir}/META-INF/MANIFEST.MF">
+			<attribute name="Built-By" value="${builder}"/>
+			<attribute name="Built-On" value="${build-info.current-date}"/>
+			<attribute name="Built-At" value="${build-info.current-time}"/>
+		</manifest>
+		<!--<copy todir="${build.dir}">
+			<fileset dir="${res.dir}"/>
+		</copy>-->		
+		
+	 		
+	</target>
+
+	<!-- Creates both Vaadin WAR and JAR packages -->
+	<target name="deployjar" depends="compile">
+	
+		<!-- <fileset dir="${web.dir}/WEB-INF/lib" includes="**/*.jar" /> -->
+        <jar destfile="bin/FileGraber.jar" 
+            basedir="${web.dir}/WEB-INF/lib" 
+        	manifest="${build.dir}/META-INF/MANIFEST.MF">
+        </jar>
+		
+		<jar destfile="bin/${ant.project.name}.jar" 
+				basedir="${build.dir}" 
+				manifest="${build.dir}/META-INF/MANIFEST.MF" />
+
+		<copy todir="${deploy.path}" preservelastmodified="true">
+			<fileset dir="bin">
+				<include name="*.jar"/>
+				<include name="*.class"/>				
+				<include name="*.xml"/>				
+			</fileset>
+		</copy>
+		
+		<echo message="Created JAR-file to build/${ant.project.name}.jar" />
+	</target>
+	
+	<target name="deploy" depends="compile" description="Deploy application">
+		
+		<copy todir="${deploy.path}/${name}" preservelastmodified="true">
+			<fileset dir="${web.dir}">
+				<include name="**/*.*"/>
+			</fileset>
+		</copy>
+
+	</target>
+	
+	<target name="deploywar" depends="compile" description="Deploy application as a WAR file">
+
+		<war destfile="war/${name}.war"
+	             webxml="${web.dir}/WEB-INF/web.xml">
+				 <classes dir="build/classes"/>
+			<fileset dir="${web.dir}">
+				
+				 <include name="**/*.*"/>
+			</fileset>
+			<fileset dir="${web.dir}">
+				<include name="facelets/*.*"/>
+				<include name="resources/*.*"/>
+				<include name="WEB-INF/classes/*.*"/>
+				<include name="${hbm.dir}/*.*"/>
+			</fileset>
+			<manifest>
+				<attribute name="Built-By" value="${builder}" />
+				<attribute name="Built-On" value="${build-info.current-date}" />
+				<attribute name="Built-At" value="${build-info.current-time}" />
+			</manifest>
+		</war>
+
+		<copy todir="${deploy.path}" preservelastmodified="true">
+			<fileset dir="war">
+				<include name="*.war"/>
+			</fileset>
+		</copy>
+		
+	</target>
+
+	<!-- Creates Javadoc -->
+	<target name="docs" depends="compile">
+		<javadoc packagenames="src" sourcepath="${src.dir}" destdir="${docs.dir}">
+			<!-- Define which files / directory should get included, we include all -->
+			<fileset dir="${src.dir}">
+				<include name="**" />
+			</fileset>
+			<fileset dir="${src.dir}">
+				<exclude name="${hbm.dir}"/>
+			</fileset>
+		</javadoc>
+	</target>
+
+	<target name="main" depends="compile, deploy, deployjar, deploywar">
+		<description>Main target</description>
+	</target>
+
+</project>
