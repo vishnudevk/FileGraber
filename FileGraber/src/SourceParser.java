@@ -33,7 +33,9 @@ public class SourceParser {
 		pageSrc = getBSPageSrc();
 		getNetMatchSchedule(pageSrc);
 		getClubCrestUrls(pageSrc);
+		getMatchTitle(pageSrc);
 		System.out.println(new Date());
+		getTeamNames(pageSrc);
 	}
 	
 	/**
@@ -46,12 +48,17 @@ public class SourceParser {
 		
 		pageSrc = getBSPageSrc();
 		String[] crestUrls =getClubCrestUrls(pageSrc);
+		String[] teamNames =getTeamNames(pageSrc);
 		
-		matchDetail.setMatchTitle("some match Vs Barcelona");
+		matchDetail.setMatchTitle(getMatchTitle(pageSrc));
 		matchDetail.setMatchTime(getNetMatchSchedule(pageSrc));
+		
 		matchDetail.setClubCrest1(crestUrls[0]);
 		matchDetail.setClubCrest2(crestUrls[1]);
-
+		
+		matchDetail.setTeam1(teamNames[0]);
+		matchDetail.setTeam2(teamNames[1]);
+		
 		return matchDetail;
 	}
 	
@@ -102,6 +109,28 @@ public class SourceParser {
 	}
 	
 	
+	private static String[] getTeamNames(String pageSrc){
+		int matchShieldsStartPosition = pageSrc.indexOf("<div class=\"match-shields\">"); 
+		int matchShieldsEndPosition = pageSrc.indexOf("</div>",matchShieldsStartPosition);
+		String matchSheildString = pageSrc.substring(matchShieldsStartPosition,matchShieldsEndPosition+6);
+		System.out.println(matchSheildString);
+		
+		int team1StartPosition = matchSheildString.indexOf("title=\""); 
+		int team1EndPosition = matchSheildString.indexOf("\"",team1StartPosition+7);
+		String team1String = matchSheildString.substring(team1StartPosition+7 ,team1EndPosition);
+		System.out.println(team1String);
+		
+		int team2StartPosition = matchSheildString.indexOf("title=\"",team1StartPosition+7); 
+		int team2EndPosition = matchSheildString.indexOf("\"",team2StartPosition+7);
+		String team2String = matchSheildString.substring(team2StartPosition+7 ,team2EndPosition);
+		System.out.println(team2String);
+		
+		String[] teamNames = new String[2];
+		teamNames[0]=team1String;
+		teamNames[1]=team2String;
+		return teamNames;
+	}
+	
 	private static String[] getClubCrestUrls(String pageSrc){
 		int matchShieldsStartPosition = pageSrc.indexOf("<div class=\"match-shields\">"); 
 		int matchShieldsEndPosition = pageSrc.indexOf("</div>",matchShieldsStartPosition);
@@ -123,5 +152,16 @@ public class SourceParser {
 		urls[1]=crest2String;
 		return urls;
 	} 
+	
+	/**Used to get the title of next match
+	 * @return
+	 */
+	private static String getMatchTitle(String pageSrc){
+		int matchTitleStartPosition = pageSrc.indexOf("summary entry-title\">"); 
+		int matchTitleEndPosition = pageSrc.indexOf("</strong>",matchTitleStartPosition);
+		String matchTitleString = pageSrc.substring(matchTitleStartPosition+21,matchTitleEndPosition);
+		System.out.println(matchTitleString);
+		return matchTitleString;
+	}
 	
 }
