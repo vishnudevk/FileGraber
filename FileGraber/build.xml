@@ -24,7 +24,8 @@
 	<property name="class.dir" value="bin" />
 	<property name="build.dir" value="build/classes" />
 	<property name="build.meta" value="build/classes/META-INF" />
-	<property name="war.dir" value="war" />
+	<property name="war.dir" value="/var/lib/openshift/53ebab35e0b8cd1c6f00034f/app-root/dependencies/jbossews/webapps" />
+	<!--<property name="war.dir" value="war" />-->
 	<property name="docs.dir" value="docs" />
 	<property name="dist.dir" value="dist" />
 

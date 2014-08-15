@@ -19,9 +19,11 @@ import java.util.TimeZone;
 public class SourceParser {
 
 	private static String pageSrc;
-	private static String siteUrl = "http://barcelonastream.com";
-	private static String proxyHost = "labcore-vip.network.fedex.com";
-	private static String proxyPort = "3128";
+	//private static String siteUrl = "http://barcelonastream.com";
+	///var/lib/openshift/53ebab35e0b8cd1c6f00034f/app-root/dependencies/jbossews/webapps
+	private static String siteUrl = "http://2.hidemyass.com/ip-1/encoded/Oi8vYmFyY2Vsb25hc3RyZWFtLmNvbS8%3D";
+	private static String proxyHost ;//= "labcore-vip.network.fedex.com";
+	private static String proxyPort ;//= "3128";
 	
 	
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("MMM,dd,yyyy,HH:mm" );

@@ -19,8 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 
 public class UploadServlet extends HttpServlet {
 
-	private static String proxyHost = "labcore-vip.network.fedex.com";
-	private static String proxyPort = "3128";
+	private static String proxyHost ;//= "labcore-vip.network.fedex.com";
+	private static String proxyPort ;//=// "3128";
 	private static MatchDetail matchDetail;
 	private static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
 	
